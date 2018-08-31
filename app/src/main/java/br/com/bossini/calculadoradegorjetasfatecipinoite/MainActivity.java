@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tipTextView;
     private TextView totalTextView;
 
-    private double billAmount;
+    private double billAmount = 0.0;
     private double percent =  0.15;
 
 
@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
 
         EditText amountEditText = (EditText)
                 findViewById(R.id.amountEditText);
+        ObservadorDoEditText observadorDoEditText =
+                new ObservadorDoEditText();
+        amountEditText.addTextChangedListener(observadorDoEditText);
         SeekBar percentSeekBar = (SeekBar)
                 findViewById(R.id.percentSeekBar);
         percentSeekBar.setOnSeekBarChangeListener(new ObservadorDaSeekBar());
@@ -49,7 +52,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            Toast.makeText(MainActivity.this, Integer.toString(progress), Toast.LENGTH_SHORT).show();
+            percentTextView.setText(percentFormat.format(progress / 100.0));
+            percent = progress / 100.0;
+            double tip = billAmount * percent;
+            double total = billAmount + tip;
+            tipTextView.setText(currencyFormat.format(tip));
+            totalTextView.setText(currencyFormat.format(total));
         }
 
         @Override
@@ -71,7 +79,20 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+            try{
+                billAmount = Double.parseDouble(s.toString()) / 100;
+                amountTextView.setText(currencyFormat.format(billAmount));
+                double tip = billAmount * percent;
+                double total = billAmount + tip;
+                tipTextView.setText(currencyFormat.format(tip));
+                totalTextView.setText(currencyFormat.format(total));
+            }
+            catch (NumberFormatException e){
+                billAmount = 0;
+                amountTextView.setText(currencyFormat.format(0));
+                tipTextView.setText(currencyFormat.format(0));
+                totalTextView.setText(currencyFormat.format(0));
+            }
         }
 
         @Override
